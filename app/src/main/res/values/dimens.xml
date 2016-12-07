@@ -1,0 +1,18 @@
+<resources>
+    <!-- Camera Screen -->
+    <dimen name="camera_close_button_margin_top">16dp</dimen>
+    <dimen name="camera_close_button_margin_left">16dp</dimen>
+    <dimen name="camera_controller_section_height">144dp</dimen>
+    <dimen name="camera_controller_margin_top">16dp</dimen>
+    <dimen name="camera_top_controller_margin_horizontal">28dp</dimen>
+    <dimen name="camera_thumbnail_horizontal_margin">16dp</dimen>
+    <dimen name="camera_thumbnail_margin_bottom">24dp</dimen>
+    <dimen name="camera_thumbnail_size">48dp</dimen>
+    <dimen name="camera_central_controllers_width">138dp</dimen>
+    <dimen name="camera_central_controllers_height">112dp</dimen>
+    <dimen name="camera_central_controllers_margin_bottom">12dp</dimen>
+    <dimen name="camera_central_controllers_padding">8dp</dimen>
+    <dimen name="camera_button_padding">16dp</dimen>
+    <dimen name="camera_button_background_width">56dp</dimen>
+    <dimen name="camera_button_background_height">80dp</dimen>
+</resources>
