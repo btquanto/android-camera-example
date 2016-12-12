@@ -3,6 +3,7 @@ package com.theitfox.camera.presentation.features.camera.components;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.View;
 
 import com.theitfox.camera.R;
@@ -41,7 +42,7 @@ public class CameraTouchController {
     private int scaleLevel;
 
     // The camera preview
-    private CameraPreview cameraPreview;
+    private SurfaceView surfaceView;
 
     @Inject
     public CameraTouchController(CameraTouchListener listener) {
@@ -51,8 +52,8 @@ public class CameraTouchController {
         this.scaleLevel = 1;
     }
 
-    public void setCameraPreview(CameraPreview cameraPreview) {
-        this.cameraPreview = cameraPreview;
+    public void setSurfaceView(SurfaceView surfaceView) {
+        this.surfaceView = surfaceView;
     }
 
     @OnTouch(R.id.sv_camera_preview)
@@ -129,8 +130,8 @@ public class CameraTouchController {
     }
 
     private Rect calculateFocusArea(float x, float y) {
-        int left = clamp(Float.valueOf((x / cameraPreview.getWidth()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
-        int top = clamp(Float.valueOf((y / cameraPreview.getHeight()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
+        int left = clamp(Float.valueOf((x / surfaceView.getWidth()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
+        int top = clamp(Float.valueOf((y / surfaceView.getHeight()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
 
         return new Rect(left, top, left + FOCUS_AREA_SIZE, top + FOCUS_AREA_SIZE);
     }

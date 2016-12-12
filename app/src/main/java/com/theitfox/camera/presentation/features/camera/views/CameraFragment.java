@@ -84,7 +84,7 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
         View view = inflater.inflate(R.layout.fragment_camera, container, false);
         ButterKnife.bind(this, view);
         ButterKnife.bind(cameraTouchController, flCameraPreview);
-        cameraTouchController.setCameraPreview(cameraPreview);
+        cameraTouchController.setSurfaceView(cameraPreview.getSurfaceView());
         return view;
     }
 
