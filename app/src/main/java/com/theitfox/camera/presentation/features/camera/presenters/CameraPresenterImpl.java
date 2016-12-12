@@ -1,7 +1,11 @@
 package com.theitfox.camera.presentation.features.camera.presenters;
 
+import android.graphics.Bitmap;
+
 import com.theitfox.camera.presentation.features.camera.presenters.abstracts.CameraPresenter;
 import com.theitfox.camera.presentation.features.camera.presenters.abstracts.CameraPresenterUseCaseProvider;
+
+import java.io.File;
 
 import javax.inject.Inject;
 
@@ -19,31 +23,40 @@ public class CameraPresenterImpl extends CameraPresenter {
     @Override
     public void saveJPEGToSdCard(byte[] jpeg, String fileName) {
         useCaseProvider.getSaveJPEGToSdCardUseCase(jpeg, fileName)
-                .onError(e -> {
-                    if (isViewAttached()) {
-                        view.onSaveJPEGToSdCardError();
-                    }
-                })
-                .onNext(file -> {
-                    if (isViewAttached()) {
-                        view.onSaveJPEGToSdCardSuccess(file);
-                    }
-                })
+                .onError(this::onSaveJPEGToSdCardError)
+                .onNext(this::onSaveJPEFToSdCardSuccess)
                 .execute();
+    }
+
+    private void onSaveJPEGToSdCardError(Throwable e) {
+        if (isViewAttached()) {
+            view.onSaveJPEGToSdCardError();
+        }
+    }
+
+    private void onSaveJPEFToSdCardSuccess(File file) {
+        if (isViewAttached()) {
+            view.onSaveJPEGToSdCardSuccess(file);
+        }
     }
 
     @Override public void getLastPhotoTaken() {
         useCaseProvider.getGetLastPhotoTakenUseCase()
-                .onError(e -> {
-                    if (isViewAttached()) {
-                        view.onGetLastPhotoTakenError();
-                    }
-                })
-                .onNext(bitmap -> {
-                    if (isViewAttached()) {
-                        view.onGetLastPhotoTakenSuccess(bitmap);
-                    }
-                })
+                .onError(this::onGetLastPhotoTakenError)
+                .onNext(this::onGetLastPhotoTakenSuccess)
                 .execute();
+    }
+
+    private void onGetLastPhotoTakenError(Throwable e) {
+        if (isViewAttached()) {
+            view.onGetLastPhotoTakenError();
+        }
+    }
+
+
+    private void onGetLastPhotoTakenSuccess(Bitmap bitmap) {
+        if (isViewAttached()) {
+            view.onGetLastPhotoTakenSuccess(bitmap);
+        }
     }
 }
