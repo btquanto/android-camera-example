@@ -29,9 +29,8 @@ import com.theitfox.camera.presentation.features.camera.injection.CameraModule;
 import com.theitfox.camera.presentation.features.camera.injection.DaggerCameraComponent;
 import com.theitfox.camera.presentation.features.camera.presenters.CameraPresenterImpl;
 import com.theitfox.camera.presentation.features.camera.views.abstracts.CameraView;
-import com.theitfox.camera.utils.Logger;
+import com.theitfox.camera.utils.Duplex;
 import com.theitfox.camera.utils.MapUtils;
-import com.theitfox.camera.utils.Tuple;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,6 +48,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Actions;
 
 /**
  * Created by btquanto on 23/11/2016.
@@ -56,11 +56,12 @@ import rx.Scheduler;
 public class CameraFragment extends BaseFragment implements CameraView, CameraTouchController.CameraTouchListener {
 
     @BindView(R.id.fl_camera_preview) FrameLayout flCameraPreview;
-    @BindView(R.id.sv_camera_preview) CameraPreview cameraPreview;
+    @BindView(R.id.cp_camera_preview) CameraPreview cameraPreview;
     @BindView(R.id.ib_gallery) ImageButton ibGallery;
 
     @Inject CameraPresenterImpl presenter;
     @Inject CameraTouchController cameraTouchController;
+    @Inject @Named("executionThread") Scheduler executionThread;
     @Inject @Named("ioThread") Scheduler ioThread;
     @Inject @Named("postExecutionThread") Scheduler postExecutionThread;
     @Inject MapUtils mapUtils;
@@ -73,17 +74,27 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Inject dependencies using Dagger
         getComponent().inject(this);
+
+        // Initialize other private variables that are not external dependencies
+        // TODO: Should have checked for camera availability
+        // TODO: We probably would want to save these settings to applicationState, or sharedPreferences
         cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-        presenter.attachView(this);
         flashMode = 0;
+
+        // Attach CameraView to CameraPresenter
+        presenter.attachView(this);
     }
 
     @Nullable @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_camera, container, false);
+        // Inject inflated view to this fragment using Butterknife
         ButterKnife.bind(this, view);
+        // Inject flCameraView to cameraTouchController using Butterknife
         ButterKnife.bind(cameraTouchController, flCameraPreview);
+
         cameraTouchController.setSurfaceView(cameraPreview.getSurfaceView());
         return view;
     }
@@ -91,45 +102,48 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
     @Override
     public void onResume() {
         super.onResume();
-        int numCams = Camera.getNumberOfCameras();
-        if (numCams > 0) {
-            try {
-                camera = Camera.open(cameraId);
-                cameraPreview.setCamera(camera, cameraId, getDisplayRotation());
+        Observable.<Camera>create(subscriber -> {
+            // Open Camera on another thread for faster fragment starting time
+            int numCams = Camera.getNumberOfCameras();
+            if (numCams > 0) {
+                Camera camera = Camera.open(cameraId);
                 camera.startPreview();
-            } catch (RuntimeException ex) {
-                Logger.e("Camera Not Found");
-                ex.printStackTrace();
-                Toast.makeText(getContext(), getString(R.string.error_no_camera), Toast.LENGTH_LONG).show();
+                subscriber.onNext(camera);
             }
-        }
+        }).subscribeOn(executionThread)
+                .observeOn(postExecutionThread)
+                .subscribe(this::onOpenCameraSuccess, this::onOpenCameraError);
         presenter.getLastPhotoTaken();
+    }
+
+    void onOpenCameraSuccess(Camera camera) {
+        this.camera = camera;
+        this.cameraPreview.setCamera(camera, cameraId, getDisplayRotation());
+    }
+
+    void onOpenCameraError(Throwable e) {
+        Toast.makeText(getContext(), getString(R.string.error_no_camera), Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (camera != null) {
-            camera.stopPreview();
-            cameraPreview.setCamera(null, cameraId, 0);
-            camera.release();
-            camera = null;
-        }
+        Observable.<Camera>create(subscriber -> {
+            if (camera != null) {
+                camera.stopPreview();
+                cameraPreview.setCamera(null, cameraId, 0);
+                camera.release();
+                camera = null;
+            }
+        }).subscribeOn(executionThread)
+                .subscribe(Actions.empty(), Actions.empty());
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        // Detach CameraView from CameraPresenter
         presenter.detachView();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        // Checks the orientation of the screen
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-        }
     }
 
     @Override
@@ -164,13 +178,13 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
         flashMode = (flashMode + 1) % 3;
         Camera.Parameters parameters = camera.getParameters();
         ImageButton flashBtn = (ImageButton) view;
-        Map<Integer, Tuple> map = mapUtils.create(new Integer[]{0, 1, 3},
-                new Tuple[]{
-                        new Tuple(Camera.Parameters.FLASH_MODE_OFF, R.drawable.ic_flash_off),
-                        new Tuple(Camera.Parameters.FLASH_MODE_ON, R.drawable.ic_flash_on),
-                        new Tuple(Camera.Parameters.FLASH_MODE_AUTO, R.drawable.ic_flash_auto)
+        Map<Integer, Duplex> map = mapUtils.create(new Integer[]{0, 1, 2},
+                new Duplex[]{
+                        new Duplex(Camera.Parameters.FLASH_MODE_OFF, R.drawable.ic_flash_off),
+                        new Duplex(Camera.Parameters.FLASH_MODE_ON, R.drawable.ic_flash_on),
+                        new Duplex(Camera.Parameters.FLASH_MODE_AUTO, R.drawable.ic_flash_auto)
                 });
-        Tuple mapValue = map.get(flashMode);
+        Duplex mapValue = map.get(flashMode);
         if (mapValue != null) {
             parameters.setFlashMode(mapValue.getFirst());
             flashBtn.setImageResource(mapValue.getSecond());
@@ -188,16 +202,14 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
             switchBtn.setImageResource(R.drawable.ic_camera_front);
             cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
         }
-        if (camera != null) {
-            camera.stopPreview();
-            camera.release();
-        }
+        camera.stopPreview();
+        camera.release();
         try {
             camera = Camera.open(cameraId);
             cameraPreview.setCamera(camera, cameraId, getDisplayRotation());
             camera.startPreview();
             Camera.Parameters parameters = camera.getParameters();
-            Map<Integer, String> map = mapUtils.create(new Integer[]{0, 1, 3},
+            Map<Integer, String> map = mapUtils.create(new Integer[]{0, 1, 2},
                     new String[]{
                             Camera.Parameters.FLASH_MODE_OFF,
                             Camera.Parameters.FLASH_MODE_ON,
@@ -212,6 +224,11 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
             ex.printStackTrace();
             Toast.makeText(getContext(), getString(R.string.error_no_camera), Toast.LENGTH_LONG).show();
         }
+    }
+
+    @OnClick(R.id.ib_close)
+    void onCloseButtonClicked(View view) {
+        closeFragment();
     }
 
     @Override

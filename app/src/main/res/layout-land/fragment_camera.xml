@@ -1,37 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="@color/white">
 
     <FrameLayout
         android:id="@+id/fl_controllers"
-        android:layout_width="@dimen/camera_controller_section_height"
-        android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true">
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/camera_controller_section_height"
+        android:layout_alignParentBottom="true">
 
         <ImageButton
             android:id="@+id/ib_flash"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|start"
-            android:layout_marginBottom="@dimen/camera_controller_margin_top"
+            android:layout_gravity="top|left"
             android:layout_marginLeft="@dimen/camera_top_controller_margin_horizontal"
+            android:layout_marginTop="@dimen/camera_controller_margin_top"
             android:background="@android:color/transparent"
+            android:padding="@dimen/camera_controller_padding"
             android:src="@drawable/ic_flash_off"/>
 
         <ImageButton
             android:id="@+id/ib_switch_camera"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|start"
-            android:layout_marginLeft="@dimen/camera_top_controller_margin_horizontal"
+            android:layout_gravity="top|right"
+            android:layout_marginRight="@dimen/camera_top_controller_margin_horizontal"
             android:layout_marginTop="@dimen/camera_controller_margin_top"
             android:background="@android:color/transparent"
+            android:padding="@dimen/camera_controller_padding"
             android:src="@drawable/ic_camera_front"/>
 
         <ImageButton
             android:id="@+id/ib_gallery"
+            android:layout_width="@dimen/camera_thumbnail_size"
+            android:layout_height="@dimen/camera_thumbnail_size"
+            android:layout_gravity="bottom|start"
+            android:layout_marginBottom="@dimen/camera_thumbnail_margin_bottom"
+            android:layout_marginLeft="@dimen/camera_thumbnail_horizontal_margin"
+            android:background="@android:color/transparent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_photo_filter"/>
+
+        <ImageButton
+            android:id="@+id/ib_filters"
             android:layout_width="@dimen/camera_thumbnail_size"
             android:layout_height="@dimen/camera_thumbnail_size"
             android:layout_gravity="bottom|end"
@@ -39,35 +52,24 @@
             android:layout_marginRight="@dimen/camera_thumbnail_horizontal_margin"
             android:background="@android:color/transparent"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher"/>
-
-        <ImageButton
-            android:id="@+id/ib_filters"
-            android:layout_width="@dimen/camera_thumbnail_size"
-            android:layout_height="@dimen/camera_thumbnail_size"
-            android:layout_gravity="top|end"
-            android:layout_marginRight="@dimen/camera_thumbnail_horizontal_margin"
-            android:layout_marginTop="@dimen/camera_thumbnail_margin_bottom"
-            android:background="@android:color/transparent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher"/>
+            android:src="@drawable/ic_photo_filter"/>
 
         <FrameLayout
-            android:layout_width="@dimen/camera_central_controllers_height"
-            android:layout_height="@dimen/camera_central_controllers_width"
-            android:layout_gravity="end|center_vertical">
+            android:layout_width="@dimen/camera_central_controllers_width"
+            android:layout_height="@dimen/camera_central_controllers_height"
+            android:layout_gravity="bottom|center_horizontal">
 
             <FrameLayout
-                android:layout_width="@dimen/camera_button_background_height"
-                android:layout_height="@dimen/camera_button_background_width"
-                android:layout_gravity="end|center_vertical"
+                android:layout_width="@dimen/camera_button_background_width"
+                android:layout_height="@dimen/camera_button_background_height"
+                android:layout_gravity="bottom|center_horizontal"
                 android:background="@color/bg_camera_shutter_button"/>
 
             <ImageButton
                 android:id="@+id/ib_shutter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start|center_vertical"
+                android:layout_gravity="top|center_horizontal"
                 android:background="@drawable/bg_camera_button"
                 android:padding="@dimen/camera_button_padding"
                 android:src="@drawable/ic_camera_alt"/>
@@ -76,9 +78,8 @@
                 android:id="@+id/btn_switch_camera"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_marginEnd="@dimen/camera_central_controllers_margin_bottom"
-                android:layout_marginRight="@dimen/camera_central_controllers_margin_bottom"
+                android:layout_gravity="bottom|start"
+                android:layout_marginBottom="@dimen/camera_central_controllers_margin_bottom"
                 android:background="@android:color/transparent"
                 android:padding="@dimen/camera_central_controllers_padding"
                 android:src="@drawable/ic_switch_camera"/>
@@ -87,9 +88,8 @@
                 android:id="@+id/btn_switch_video"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top|end"
-                android:layout_marginEnd="@dimen/camera_central_controllers_margin_bottom"
-                android:layout_marginRight="@dimen/camera_central_controllers_margin_bottom"
+                android:layout_gravity="bottom|end"
+                android:layout_marginBottom="@dimen/camera_central_controllers_margin_bottom"
                 android:background="@android:color/transparent"
                 android:padding="@dimen/camera_central_controllers_padding"
                 android:src="@drawable/ic_switch_video"/>
@@ -101,23 +101,24 @@
         android:id="@+id/fl_camera_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_toLeftOf="@id/fl_controllers">
+        android:layout_above="@id/fl_controllers"
+        android:layout_alignParentTop="true">
 
         <com.theitfox.camera.presentation.features.camera.components.CameraPreview
-            android:id="@+id/sv_camera_preview"
+            android:id="@+id/cp_camera_preview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"/>
+            android:layout_gravity="center_horizontal"
+            android:background="@android:color/black"/>
 
         <ImageButton
+            android:id="@+id/ib_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|start"
             android:layout_marginLeft="@dimen/camera_close_button_margin_left"
             android:layout_marginTop="@dimen/camera_close_button_margin_top"
-            android:background="@android:color/transparent"
+            android:background="@color/bg_camera_close_btn"
             android:src="@drawable/ic_close"/>
     </FrameLayout>
 </RelativeLayout>

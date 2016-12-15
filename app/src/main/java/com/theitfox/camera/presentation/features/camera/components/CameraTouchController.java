@@ -15,7 +15,6 @@ import butterknife.OnTouch;
 /**
  * Created by btquanto on 29/11/2016.
  */
-
 public class CameraTouchController {
 
     private static final int FOCUS_AREA_SIZE = 300;
@@ -56,7 +55,7 @@ public class CameraTouchController {
         this.surfaceView = surfaceView;
     }
 
-    @OnTouch(R.id.sv_camera_preview)
+    @OnTouch(R.id.cp_camera_preview)
     public boolean onTouch(View view, MotionEvent event) {
         final int actionPerformed = event.getAction() & MotionEvent.ACTION_MASK;
 

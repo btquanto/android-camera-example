@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * Created by btquanto on 12/12/2016.
  */
-
 public class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
 
     private SurfaceView surfaceView;
@@ -99,7 +98,6 @@ public class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
                             height = getHeight();
                             width = (int) (height / ratio);
                         }
-
                         l = (getWidth() - width) / 2;
                         r = l + width;
                         t = (getHeight() - height) / 2;

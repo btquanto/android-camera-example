@@ -6,4 +6,5 @@
     <color name="white">#FFFFFF</color>
 
     <color name="bg_camera_shutter_button">#cbcbcb</color>
+    <color name="bg_camera_close_btn">#40ffffff</color>
 </resources>
