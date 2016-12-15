@@ -79,12 +79,13 @@ public class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
                 params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
             }
             camera.setParameters(params);
+            invalidate();
         }
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (changed && getChildCount() > 0) {
+        if (getChildCount() > 0) {
             final View child = getChildAt(0);
             if (supportedPreviewSizes != null) {
                 previewSize = getOptimalPreviewSize(supportedPreviewSizes, getWidth(), getHeight());
@@ -94,10 +95,12 @@ public class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
 
                         int width = getWidth();
                         int height = (int) (width * ratio);
+
                         if (height > getHeight()) {
                             height = getHeight();
                             width = (int) (height / ratio);
                         }
+
                         l = (getWidth() - width) / 2;
                         r = l + width;
                         t = (getHeight() - height) / 2;
