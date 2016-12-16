@@ -1,7 +1,6 @@
 package com.theitfox.camera.presentation.features.camera.views;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -48,7 +47,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Actions;
 
 /**
  * Created by btquanto on 23/11/2016.
@@ -128,15 +126,12 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
     @Override
     public void onPause() {
         super.onPause();
-        Observable.<Camera>create(subscriber -> {
-            if (camera != null) {
-                camera.stopPreview();
-                cameraPreview.setCamera(null, cameraId, 0);
-                camera.release();
-                camera = null;
-            }
-        }).subscribeOn(executionThread)
-                .subscribe(Actions.empty(), Actions.empty());
+        if (camera != null) {
+            camera.stopPreview();
+            cameraPreview.setCamera(null, cameraId, 0);
+            camera.release();
+            camera = null;
+        }
     }
 
     @Override
