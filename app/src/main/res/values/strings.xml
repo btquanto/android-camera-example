@@ -2,5 +2,6 @@
     <string name="app_name">Android Camera Example</string>
     <string name="error">Error!</string>
     <string name="error_no_camera">Camera not found!</string>
+    <string name="error_camera_not_available">Camera is not available!</string>
     <string name="error_unable_to_save_photo">Unable to save captured photo!</string>
 </resources>

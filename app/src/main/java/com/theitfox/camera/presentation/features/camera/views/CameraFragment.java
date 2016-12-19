@@ -104,8 +104,8 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         if (!permissionHelper.hasPermission(getContext(), Manifest.permission.CAMERA)) {
             permissionHelper.requestPermission(getActivity(), Manifest.permission.CAMERA, REQUEST_PERMISSION_CAMERA);
         } else {
@@ -115,8 +115,8 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
+        super.onStop();
         if (camera != null) {
             camera.stopPreview();
             cameraPreview.setCamera(null, cameraId, 0);
@@ -154,7 +154,11 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
 
     @OnClick(R.id.ib_shutter)
     void onShutterButtonClicked() {
-        camera.takePicture(this::onShutter, this::onRawImageTaken, this::onJPEGTaken);
+        if (camera != null) {
+            camera.takePicture(this::onShutter, this::onRawImageTaken, this::onJPEGTaken);
+        } else {
+            Toast.makeText(getContext(), getString(R.string.error_camera_not_available), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void onShutter() {
@@ -173,6 +177,9 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
 
     @OnClick(R.id.ib_flash)
     void onFlashButtonClicked(View view) {
+        if (camera == null) {
+            return;
+        }
         flashMode = (flashMode + 1) % 3;
         Camera.Parameters parameters = camera.getParameters();
         ImageButton flashBtn = (ImageButton) view;
@@ -192,6 +199,9 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
 
     @OnClick(R.id.ib_switch_camera)
     void onSwitchCameraButtonClicked(View view) {
+        if (camera == null) {
+            return;
+        }
         ImageButton switchBtn = (ImageButton) view;
         if (cameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
             switchBtn.setImageResource(R.drawable.ic_camera_rear);
