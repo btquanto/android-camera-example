@@ -1,5 +1,6 @@
 package com.theitfox.camera.presentation.features.camera.views;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,6 +10,7 @@ import android.hardware.Camera;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.Surface;
@@ -28,6 +30,7 @@ import com.theitfox.camera.presentation.features.camera.injection.CameraModule;
 import com.theitfox.camera.presentation.features.camera.injection.DaggerCameraComponent;
 import com.theitfox.camera.presentation.features.camera.presenters.CameraPresenterImpl;
 import com.theitfox.camera.presentation.features.camera.views.abstracts.CameraView;
+import com.theitfox.camera.presentation.utils.PermissionHelper;
 import com.theitfox.camera.utils.Duplex;
 import com.theitfox.camera.utils.MapUtils;
 
@@ -53,6 +56,8 @@ import rx.Scheduler;
  */
 public class CameraFragment extends BaseFragment implements CameraView, CameraTouchController.CameraTouchListener {
 
+    private static final int REQUEST_PERMISSION_CAMERA = 1;
+
     @BindView(R.id.fl_camera_preview) FrameLayout flCameraPreview;
     @BindView(R.id.cp_camera_preview) CameraPreview cameraPreview;
     @BindView(R.id.ib_gallery) ImageButton ibGallery;
@@ -63,6 +68,7 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
     @Inject @Named("ioThread") Scheduler ioThread;
     @Inject @Named("postExecutionThread") Scheduler postExecutionThread;
     @Inject MapUtils mapUtils;
+    @Inject PermissionHelper permissionHelper;
 
     private Camera camera;
     private int cameraId;
@@ -100,27 +106,12 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
     @Override
     public void onResume() {
         super.onResume();
-        Observable.<Camera>create(subscriber -> {
-            // Open Camera on another thread for faster fragment starting time
-            int numCams = Camera.getNumberOfCameras();
-            if (numCams > 0) {
-                Camera camera = Camera.open(cameraId);
-                camera.startPreview();
-                subscriber.onNext(camera);
-            }
-        }).subscribeOn(executionThread)
-                .observeOn(postExecutionThread)
-                .subscribe(this::onOpenCameraSuccess, this::onOpenCameraError);
+        if (!permissionHelper.hasPermission(getContext(), Manifest.permission.CAMERA)) {
+            permissionHelper.requestPermission(getActivity(), Manifest.permission.CAMERA, REQUEST_PERMISSION_CAMERA);
+        } else {
+            presenter.openCamera(cameraId);
+        }
         presenter.getLastPhotoTaken();
-    }
-
-    void onOpenCameraSuccess(Camera camera) {
-        this.camera = camera;
-        this.cameraPreview.setCamera(camera, cameraId, getDisplayRotation());
-    }
-
-    void onOpenCameraError(Throwable e) {
-        Toast.makeText(getContext(), getString(R.string.error_no_camera), Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -139,6 +130,18 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
         super.onDetach();
         // Detach CameraView from CameraPresenter
         presenter.detachView();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_PERMISSION_CAMERA:
+                if (permissionHelper.isPermissionGranted(grantResults)) {
+                    presenter.openCamera(cameraId);
+                }
+                break;
+        }
     }
 
     @Override
@@ -281,6 +284,17 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
     @Override
     public void onGetLastPhotoTakenError() {
         Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onOpenCameraSuccess(Camera camera) {
+        this.camera = camera;
+        this.cameraPreview.setCamera(camera, cameraId, getDisplayRotation());
+    }
+
+    @Override
+    public void onOpenCameraError() {
+        Toast.makeText(getContext(), getString(R.string.error_no_camera), Toast.LENGTH_LONG).show();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.theitfox.camera.presentation.features.camera.views.abstracts;
 
 import android.graphics.Bitmap;
+import android.hardware.Camera;
 
 import com.theitfox.camera.presentation.common.mvp.BaseView;
 
@@ -17,4 +18,8 @@ public interface CameraView extends BaseView {
     void onGetLastPhotoTakenSuccess(Bitmap bitmap);
 
     void onGetLastPhotoTakenError();
+
+    void onOpenCameraSuccess(Camera camera);
+
+    void onOpenCameraError();
 }
