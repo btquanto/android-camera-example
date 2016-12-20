@@ -93,6 +93,10 @@ public class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
                     try {
                         float ratio = ((float) previewSize.width) / previewSize.height;
 
+                        if (surfaceRotation % 180 == 0) {
+                            ratio = 1f / ratio;
+                        }
+
                         int width = getWidth();
                         int height = (int) (width * ratio);
 

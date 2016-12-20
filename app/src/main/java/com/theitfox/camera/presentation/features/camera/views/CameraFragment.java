@@ -299,6 +299,7 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
     @Override
     public void onOpenCameraSuccess(Camera camera) {
         this.camera = camera;
+        this.camera.startPreview();
         this.cameraPreview.setCamera(camera, cameraId, getDisplayRotation());
     }
 

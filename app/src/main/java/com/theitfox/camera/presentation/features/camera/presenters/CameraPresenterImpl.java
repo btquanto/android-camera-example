@@ -80,7 +80,6 @@ public class CameraPresenterImpl extends CameraPresenter {
             int numCams = Camera.getNumberOfCameras();
             if (numCams > 0) {
                 Camera camera = Camera.open(cameraId);
-                camera.startPreview();
                 subscriber.onNext(camera);
             }
         }).subscribeOn(executionThread)
