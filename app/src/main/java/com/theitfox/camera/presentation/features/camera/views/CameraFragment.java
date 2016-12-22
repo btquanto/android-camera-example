@@ -314,13 +314,17 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
 
     @Override
     public int onZoom(int zoomLevel) {
-        Camera.Parameters parameters = camera.getParameters();
-        if (parameters.isZoomSupported()) {
-            if (zoomLevel > parameters.getMaxZoom()) {
-                zoomLevel = parameters.getMaxZoom();
+        if (camera != null) {
+            Camera.Parameters parameters = camera.getParameters();
+            if (parameters.isZoomSupported()) {
+                if (zoomLevel > parameters.getMaxZoom()) {
+                    zoomLevel = parameters.getMaxZoom();
+                }
+                parameters.setZoom(zoomLevel);
+                camera.setParameters(parameters);
             }
-            parameters.setZoom(zoomLevel);
-            camera.setParameters(parameters);
+        } else {
+            zoomLevel = 1;
         }
         return zoomLevel;
     }
