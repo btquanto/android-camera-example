@@ -17,7 +17,6 @@ import rx.Scheduler;
 /**
  * Created by btquanto on 29/11/2016.
  */
-
 public class CameraPresenterImpl extends CameraPresenter {
 
     private Scheduler executionThread;

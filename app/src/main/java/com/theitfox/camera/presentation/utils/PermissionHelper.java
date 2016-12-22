@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 
 import javax.inject.Inject;
@@ -12,7 +13,6 @@ import javax.inject.Inject;
 /**
  * Created by btquanto on 18/11/2016.
  */
-
 public class PermissionHelper {
 
     @Inject
@@ -44,6 +44,10 @@ public class PermissionHelper {
 
     public void requestPermission(Activity activity, String permission, int requestCode) {
         ActivityCompat.requestPermissions(activity, new String[]{permission}, requestCode);
+    }
+
+    public void requestPermission(Fragment fragment, String permission, int requestCode) {
+        fragment.requestPermissions(new String[]{permission}, requestCode);
     }
 
     public boolean isPermissionGranted(int[] grantResults) {

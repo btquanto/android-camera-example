@@ -157,7 +157,11 @@ public class CameraFragment extends BaseFragment implements CameraView, CameraTo
         if (camera != null) {
             camera.takePicture(this::onShutter, this::onRawImageTaken, this::onJPEGTaken);
         } else {
-            Toast.makeText(getContext(), getString(R.string.error_camera_not_available), Toast.LENGTH_SHORT).show();
+            if (!permissionHelper.hasPermission(getContext(), Manifest.permission.CAMERA)) {
+                permissionHelper.requestPermission(this, Manifest.permission.CAMERA, REQUEST_PERMISSION_CAMERA);
+            } else {
+                presenter.openCamera(cameraId);
+            }
         }
     }
 
